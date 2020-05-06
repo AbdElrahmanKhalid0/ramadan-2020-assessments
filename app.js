@@ -42,6 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(videoRequests => {
             videoRequests.map(videoRequest => {
                 const videoRequestCard = getCard(videoRequest);
+                // this is the vote score h3 element
+                const voteScore = videoRequestCard.querySelector('.text-center > h3')
 
                 voteUp = videoRequestCard.querySelectorAll('a')[0];
                 voteUp.addEventListener('click', () => {
@@ -55,6 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             vote_type: 'ups'
                         })
                     });
+                    // changing the text in voteScore
+                    voteScore.innerHTML = +voteScore.innerHTML + 1
                 });
                 
                 voteDown = videoRequestCard.querySelectorAll('a')[1];
@@ -69,6 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             vote_type: 'downs'
                         })
                     });
+                    // changing the text in voteScore
+                    voteScore.innerHTML = +voteScore.innerHTML - 1
                 });
                 
                 requestsList.appendChild(videoRequestCard);
