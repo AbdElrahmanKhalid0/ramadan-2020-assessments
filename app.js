@@ -1,4 +1,4 @@
-const getCard = ({topic_title,topic_details,expected_result,votes,status,author_name,submit_date,target_level}) => {
+const getCard = ({topic_title,topic_details,expected_result,votes,status,author_name,submit_date,target_level,_id}) => {
     const videoCard = document.createElement('div');
     videoCard.classList.add('card','mb-3');
     videoCard.innerHTML = 
@@ -29,6 +29,44 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
                 ${target_level}
             </div>
         </div>`;
+    
+        // adding the voting functionality
+
+        // this is the vote score h3 element        
+        const voteScore = videoCard.querySelector('.text-center > h3')
+
+        voteUp = videoCard.querySelectorAll('a')[0];
+        voteUp.addEventListener('click', () => {
+            fetch('http://localhost:7777/video-request/vote', {
+                method:'PUT',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body:JSON.stringify({
+                    id: _id,
+                    vote_type: 'ups'
+                })
+            });
+
+            voteScore.innerHTML = +voteScore.innerHTML + 1
+        });
+        
+        voteDown = videoCard.querySelectorAll('a')[1];
+        voteDown.addEventListener('click', () => {
+            fetch('http://localhost:7777/video-request/vote', {
+                method:'PUT',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body:JSON.stringify({
+                    id: _id,
+                    vote_type: 'downs'
+                })
+            });
+
+            voteScore.innerHTML = +voteScore.innerHTML - 1
+        });
+    
     return videoCard;
 };
 
@@ -42,41 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(videoRequests => {
             videoRequests.map(videoRequest => {
                 const videoRequestCard = getCard(videoRequest);
-                // this is the vote score h3 element
-                const voteScore = videoRequestCard.querySelector('.text-center > h3')
-
-                voteUp = videoRequestCard.querySelectorAll('a')[0];
-                voteUp.addEventListener('click', () => {
-                    fetch('http://localhost:7777/video-request/vote', {
-                        method:'PUT',
-                        headers:{
-                            'Content-Type':'application/json'
-                        },
-                        body:JSON.stringify({
-                            id: videoRequest._id,
-                            vote_type: 'ups'
-                        })
-                    });
-                    // changing the text in voteScore
-                    voteScore.innerHTML = +voteScore.innerHTML + 1
-                });
-                
-                voteDown = videoRequestCard.querySelectorAll('a')[1];
-                voteDown.addEventListener('click', () => {
-                    fetch('http://localhost:7777/video-request/vote', {
-                        method:'PUT',
-                        headers:{
-                            'Content-Type':'application/json'
-                        },
-                        body:JSON.stringify({
-                            id: videoRequest._id,
-                            vote_type: 'downs'
-                        })
-                    });
-                    // changing the text in voteScore
-                    voteScore.innerHTML = +voteScore.innerHTML - 1
-                });
-                
                 requestsList.appendChild(videoRequestCard);
             })
         })
