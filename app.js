@@ -4,7 +4,7 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
                 <h3>${topic_title}</h3>
                 <p class="text-muted mb-2">${topic_details}</p>
                 <p class="mb-0 text-muted">
-                    <strong>Expected results:</strong> ${expected_result}
+                    ${expected_result && `<strong>Expected results:</strong> ${expected_result}`}
                 </p>
                 </div>
                 <div class="d-flex flex-column text-center">
@@ -15,7 +15,7 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
             </div>
             <div class="card-footer d-flex flex-row justify-content-between">
                 <div>
-                <span class="text-info">${status}</span>
+                <span class="text-info">${status.toUpperCase()}</span>
                 &bullet; added by <strong>${author_name}</strong> on
                 <strong>${new Date(submit_date).toDateString()}</strong>
                 </div>
@@ -63,6 +63,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 topic_details,
                 expected_result
             })
+        })
+        .then(res => res.json())
+        .then(videoData => {
+            const videoCard = document.createElement('div');
+            videoCard.classList.add('card','mb-3');
+            videoCard.innerHTML = getCard(videoData);
+            requestsList.prepend(videoCard);
         })
         
     });
