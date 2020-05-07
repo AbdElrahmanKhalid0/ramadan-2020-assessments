@@ -154,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newFirst = document.querySelector('#newFirst');
     const topVotedFirst = document.querySelector('#topVotedFirst');
     const searchField = document.querySelector('#searchField');
+    const warningMessage = document.querySelector('#warningMessage');
 
     newFirst.addEventListener('click', () => {
         if(newFirst.classList.contains('active')){
@@ -192,6 +193,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const videoFormElementsValues = Object.keys(videoForm.elements).map(key => videoForm.elements[key].value);
         const [author_name, author_email, topic_title, target_level, topic_details, expected_result] = videoFormElementsValues;
+
+        // checking the fields validation
+        for(field of [author_name, author_email, topic_title, target_level, topic_details]){
+            if(field === ""){
+                warningMessage.innerText = 'you must fill all the required fields';
+                warningMessage.style.display = 'block';
+                return ;
+            };
+        };
+
+        // email field validation
+        if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(author_email)) {
+            warningMessage.innerText = 'you must enter a valid email';
+            warningMessage.style.display = 'block';
+            return ;
+        }
+
+        // making the warning message disappear in case it wasn't
+        warningMessage.style.display = 'none';
 
         fetch('http://localhost:7777/video-request', {
             method:'POST',
