@@ -2,16 +2,17 @@ let videoRequestsList;
 
 /**
  * 
- * @param {array} requestsArray
+ * @param {Array} requestsArray
  */
 
 const addRequestsToPageWithSort = (requestsArray) => {
     const requestsList = document.querySelector('#listOfRequests');
     const newFirst = document.querySelector('#newFirst');
-    
+    const searchField = document.querySelector('#searchField');
+
     requestsList.innerHTML = '';
 
-    videoRequestsList.sort((a,b) => {
+    requestsArray.sort((a,b) => {
         if (newFirst.classList.contains('active')) {
             // it will sort it by date
             const aSubmitDate = a.submit_date
@@ -27,7 +28,15 @@ const addRequestsToPageWithSort = (requestsArray) => {
         }
     });
 
-    requestsArray.map(videoRequest => {
+    // validating the search before adding the requests to the page
+    requestsArray.filter(videoRequest => {
+        // added this condition because without it it will ignore every request doesn't have a title in it
+        // and won't show it
+        if (searchField.value){
+            return videoRequest['topic_title'] ? videoRequest['topic_title'].toLowerCase().includes(searchField.value.toLowerCase()) : false;
+        }
+        return true
+    }).map(videoRequest => {
         const videoRequestCard = getCard(videoRequest);
         requestsList.appendChild(videoRequestCard);
     });
@@ -144,6 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const videoForm = document.querySelector('#videoRequestForm');
     const newFirst = document.querySelector('#newFirst');
     const topVotedFirst = document.querySelector('#topVotedFirst');
+    const searchField = document.querySelector('#searchField');
 
     newFirst.addEventListener('click', () => {
         if(newFirst.classList.contains('active')){
@@ -204,6 +214,12 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         
     });
+
+    // I used keyup instead of change to make the change in real time and used it instead of keydown because
+    // keydown gets the previous state of the object
+    searchField.addEventListener('keyup',(e) => {
+        addRequestsToPageWithSort(videoRequestsList);
+    })
 
 
 });
