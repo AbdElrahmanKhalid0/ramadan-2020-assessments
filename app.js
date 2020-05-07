@@ -1,3 +1,38 @@
+let videoRequestsList;
+
+/**
+ * 
+ * @param {array} requestsArray
+ */
+
+const addRequestsToPageWithSort = (requestsArray) => {
+    const requestsList = document.querySelector('#listOfRequests');
+    const newFirst = document.querySelector('#newFirst');
+    
+    requestsList.innerHTML = '';
+
+    videoRequestsList.sort((a,b) => {
+        if (newFirst.classList.contains('active')) {
+            // it will sort it by date
+            const aSubmitDate = a.submit_date
+            const bSubmitDate = b.submit_date
+
+            return new Date(bSubmitDate) - new Date(aSubmitDate);
+        } else {
+            // it will sort it by votes
+            const aScore = a.votes.ups - a.votes.downs;
+            const bScore = b.votes.ups - b.votes.downs;
+            
+            return bScore - aScore;
+        }
+    });
+
+    requestsArray.map(videoRequest => {
+        const videoRequestCard = getCard(videoRequest);
+        requestsList.appendChild(videoRequestCard);
+    });
+}
+
 const getCard = ({topic_title,topic_details,expected_result,votes,status,author_name,submit_date,target_level,_id}) => {
     const videoCard = document.createElement('div');
     videoCard.classList.add('card','mb-3');
@@ -46,9 +81,27 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
                     id: _id,
                     vote_type: 'ups'
                 })
+            })
+            .then(result => result.json())
+            .then(votes => {
+                voteScore.innerHTML = votes.ups - votes.downs;
+                
+                // this updates the sorting list
+                videoRequestsList = videoRequestsList.map(videoRequest => {
+                    if (videoRequest._id === _id){
+                        return {
+                            ...videoRequest,
+                            votes
+                        }
+                    };
+                    return videoRequest;
+                });
+
+                // resorting the requests
+                addRequestsToPageWithSort(videoRequestsList);
+
             });
 
-            voteScore.innerHTML = +voteScore.innerHTML + 1
         });
         
         voteDown = videoCard.querySelectorAll('a')[1];
@@ -62,9 +115,26 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
                     id: _id,
                     vote_type: 'downs'
                 })
+            })
+            .then(result => result.json())
+            .then(votes => {
+                voteScore.innerHTML = votes.ups - votes.downs;
+                
+                // this updates the sorting list
+                videoRequestsList = videoRequestsList.map(videoRequest => {
+                    if (videoRequest._id === _id){
+                        return {
+                            ...videoRequest,
+                            votes
+                        };
+                    }
+                    return videoRequest;
+                });
+
+                // resorting the requests
+                addRequestsToPageWithSort(videoRequestsList);
             });
 
-            voteScore.innerHTML = +voteScore.innerHTML - 1
         });
     
     return videoCard;
@@ -72,16 +142,39 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
 
 document.addEventListener('DOMContentLoaded', () => {
     const videoForm = document.querySelector('#videoRequestForm');
-    const requestsList = document.querySelector('#listOfRequests');
+    const newFirst = document.querySelector('#newFirst');
+    const topVotedFirst = document.querySelector('#topVotedFirst');
+
+    newFirst.addEventListener('click', () => {
+        if(newFirst.classList.contains('active')){
+            return ;
+        };
+        topVotedFirst.classList.remove('active');
+        newFirst.classList.add('active');
+
+        // sorting the requests and adding them to the page
+        addRequestsToPageWithSort(videoRequestsList);
+
+    });
+
+    topVotedFirst.addEventListener('click', () => {
+        if(topVotedFirst.classList.contains('active')){
+            return ;
+        };
+        newFirst.classList.remove('active');
+        topVotedFirst.classList.add('active');
+
+        // sorting the requests and adding them to the page
+        addRequestsToPageWithSort(videoRequestsList);
+    })
 
     // getting the video requests
     fetch('http://localhost:7777/video-request')
         .then(result => result.json())
         .then(videoRequests => {
-            videoRequests.map(videoRequest => {
-                const videoRequestCard = getCard(videoRequest);
-                requestsList.appendChild(videoRequestCard);
-            })
+            videoRequestsList = videoRequests;
+
+            addRequestsToPageWithSort(videoRequests);
         })
 
     videoForm.addEventListener('submit',(e) => {
@@ -106,8 +199,11 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(res => res.json())
         .then(videoData => {
-            requestsList.prepend(getCard(videoData));
+            videoRequestsList.push(videoData);
+            addRequestsToPageWithSort(videoRequestsList);
         })
         
     });
+
+
 });
