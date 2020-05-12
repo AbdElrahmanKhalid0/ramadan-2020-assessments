@@ -10,32 +10,36 @@
     />
   </head>
   <body>
-    <div class="container my-5">
+    <div class="container" id="login-container">
+      <form id="loginForm" class="col-md-5" style="margin: 50px auto;">
+        <div class="">
+          <div class="form-group">
+            <label for="author_name">Name *</label>
+            <input
+              class="form-control"
+              name="author_name"
+              placeholder="Write your name here"
+            />
+          </div>
+        </div>
+        <div class="">
+          <div class="form-group">
+            <label for="author_email">Email *</label>
+            <input
+              class="form-control"
+              name="author_email"
+              placeholder="Write your email here"
+            />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary col-md mt-3">
+          login
+        </button>
+      </form>
+    </div>
+    <div class="container my-5" id="home-container" style="display: none;">
       <div class="formContainer my-5">
         <form id="videoRequestForm">
-          <div class="row">
-            <div class="col-md">
-              <div class="form-group">
-                <label for="author_name">Your name *</label>
-                <input
-                  class="form-control"
-                  name="author_name"
-                  placeholder="Write your name here"
-                />
-              </div>
-            </div>
-            <div class="col-md">
-              <div class="form-group">
-                <label for="author_email">Your email *</label>
-                <input
-                  class="form-control"
-                  name="author_email"
-                  placeholder="Write your email here"
-                />
-              </div>
-            </div>
-          </div>
-          <hr />
           <div class="row">
             <div class="col-md">
               <div class="form-group">

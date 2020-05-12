@@ -150,6 +150,9 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    let author_name = localStorage.author_name ? localStorage.author_name : null;
+    let author_email = localStorage.author_email ? localStorage.author_email : null;
+    const loginForm = document.querySelector('#loginForm');
     const videoForm = document.querySelector('#videoRequestForm');
     const newFirst = document.querySelector('#newFirst');
     const topVotedFirst = document.querySelector('#topVotedFirst');
@@ -192,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
 
         const videoFormElementsValues = Object.keys(videoForm.elements).map(key => videoForm.elements[key].value);
-        const [author_name, author_email, topic_title, target_level, topic_details, expected_result] = videoFormElementsValues;
+        const [topic_title, target_level, topic_details, expected_result] = videoFormElementsValues;
 
         // checking the fields validation
         for(field of [author_name, author_email, topic_title, target_level, topic_details]){
@@ -239,5 +242,58 @@ document.addEventListener('DOMContentLoaded', () => {
         addRequestsToPageWithSort(videoRequestsList);
     })
 
+    // login form
+    
+    const goHome = () => {
+        document.querySelector('#home-container').style.display = 'block';
+        document.querySelector('#login-container').style.display = 'none';
+    }
+    const goLogin = () => {
+        document.querySelector('#home-container').style.display = 'none';
+        document.querySelector('#login-container').style.display = 'block';
+    }
+    
+    if(location.search){
+        goHome()
+    }
 
+    loginForm.addEventListener('submit',(e) => {
+        e.preventDefault();
+        
+        const loginFormElementsValues = Object.keys(loginForm.elements).map(key => loginForm.elements[key].value);
+        const [login_author_name, login_author_email] = loginFormElementsValues;
+
+        fetch('http://localhost:7777/users/login',{
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({
+                author_name:login_author_name,
+                author_email:login_author_email
+            })
+        })
+        .then(res => res.json())
+        .then(user => {
+            author_name = user.author_name;
+            author_email = user.author_email;
+
+            localStorage.author_name = user.author_name;
+            localStorage.author_email = user.author_email;
+
+            history.pushState({
+                id:user._id
+            },'Home || Semicolon',`${location.origin}/?id=${user._id}`);
+            document.title = 'Home || Semicolon';
+            goHome()
+        })
+    })
+    
+    window.addEventListener('popstate',() => {
+        if(!location.search){
+            goLogin()
+        } else {
+            goHome()
+        }
+    })
 });
