@@ -235,9 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
     });
 
-    // I used keyup instead of change to make the change in real time and used it instead of keydown because
-    // keydown gets the previous state of the object
-    searchField.addEventListener('keyup',(e) => {
+    searchField.addEventListener('input',() => {
         addRequestsToPageWithSort(videoRequestsList);
     })
 
