@@ -11,7 +11,7 @@
   </head>
   <body>
     <div class="container" id="login-container">
-      <form id="loginForm" class="col-md-5" style="margin: 50px auto;">
+      <form id="loginForm" class="col-md-5" style="margin: 50px auto;" novalidate>
         <div class="">
           <div class="form-group">
             <label for="author_name">Name *</label>
@@ -19,17 +19,27 @@
               class="form-control"
               name="author_name"
               placeholder="Write your name here"
+              required
             />
+            <p class="invalid-feedback">
+              you must enter a name
+            </p>
           </div>
         </div>
         <div class="">
           <div class="form-group">
             <label for="author_email">Email *</label>
             <input
+              type="email"
               class="form-control"
               name="author_email"
               placeholder="Write your email here"
+              pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
+              required
             />
+            <p class="invalid-feedback">
+              you must enter a valid email
+            </p>
           </div>
         </div>
         <button type="submit" class="btn btn-primary col-md mt-3">

@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 
     // login form
-    
+
     const goHome = () => {
         document.querySelector('#home-container').style.display = 'block';
         document.querySelector('#login-container').style.display = 'none';
@@ -262,6 +262,22 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const loginFormElementsValues = Object.keys(loginForm.elements).map(key => loginForm.elements[key].value);
         const [login_author_name, login_author_email] = loginFormElementsValues;
+
+        const author_name_elm = document.querySelector('input[name=author_name]');
+        const author_email_elm = document.querySelector('input[name=author_email]');
+        let stop = false;
+    
+        for (input_elm of [author_name_elm,author_email_elm]){
+            if(!input_elm.value || (input_elm.type === "email" && !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(input_elm.value))) {
+                input_elm.classList.add('is-invalid')
+                stop = true
+            }
+            input_elm.oninput = function(e) {
+                e.target.classList.remove('is-invalid')
+            }
+        }
+        
+        if (stop){return};
 
         fetch('http://localhost:7777/users/login',{
             method:'POST',
