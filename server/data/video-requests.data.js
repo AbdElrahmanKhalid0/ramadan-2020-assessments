@@ -1,5 +1,9 @@
 var VideoRequest = require('./../models/video-requests.model');
 
+const onlyUnique = (value,index,self) => {
+  return self.indexOf(value) === index;
+}
+
 module.exports = {
   createRequest: (vidRequestData) => {
     let newRequest = new VideoRequest(vidRequestData);
@@ -20,8 +24,16 @@ module.exports = {
     return VideoRequest.findById({ _id: id });
   },
 
-  updateRequest: (id, newVidDetails) => {
-    return VideoRequest.findByIdAndUpdate(id, newVidDetails);
+  updateRequest: async (id, userId) => {
+    const oldRequest = await VideoRequest.findById({ _id: id });
+    return VideoRequest.findByIdAndUpdate(id, {
+      voted_by: [
+        ...oldRequest.voted_by,
+        userId
+      ].filter(onlyUnique)
+    },
+    {new:true}
+    );
   },
 
   updateVoteForRequest: async (id, vote_type) => {

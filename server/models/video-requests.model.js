@@ -19,6 +19,7 @@ var VideoRequestsSchema = mongoose.Schema(
       link: { type: String, default: '' },
       date: { type: String, default: '' },
     },
+    voted_by: Array,
   },
   { timestamps: { createdAt: 'submit_date', updatedAt: 'update_date' } }
 );

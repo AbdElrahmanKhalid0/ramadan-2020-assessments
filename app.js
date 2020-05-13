@@ -109,6 +109,8 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
                 // resorting the requests
                 addRequestsToPageWithSort(videoRequestsList);
 
+                // the user voted this post
+                userVotedOnVideoRequest(_id,location.search.replace('?id=',''))
             });
 
         });
@@ -142,12 +144,39 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
 
                 // resorting the requests
                 addRequestsToPageWithSort(videoRequestsList);
+
+                // the user voted this post
+                userVotedOnVideoRequest(_id,location.search.replace('?id=',''))
             });
 
         });
     
     return videoCard;
 };
+
+const userVotedOnVideoRequest = (requestId,userId) => {
+    fetch('http://localhost:7777/video-request',{
+        method:'PUT',
+        headers:{
+            'Content-Type':'application/json'
+        },
+        body:JSON.stringify({
+            id:requestId,
+            userId
+        })
+    }).then(res => res.json()).then(videoRequestData => {
+        videoRequestsList = videoRequestsList.map(videoRequest => {
+            if(videoRequest._id === requestId){
+                return videoRequestData;
+            }
+            return videoRequest;
+        })
+    });
+}
+
+const userCanVoteOnVideoRequest = (requestId,userId) => {
+    return true;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     let author_name = localStorage.author_name ? localStorage.author_name : null;

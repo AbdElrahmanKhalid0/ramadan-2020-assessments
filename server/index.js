@@ -31,7 +31,7 @@ app.get('/video-request', async (req, res, next) => {
 });
 
 app.put('/video-request', async (req, res, next) => {
-  const response = await VideoRequestData.updateRequest(req.body.id, req.body);
+  const response = await VideoRequestData.updateRequest(req.body.id, req.body.userId);
   res.send(response);
   next();
 });
