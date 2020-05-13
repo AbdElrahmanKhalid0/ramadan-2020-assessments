@@ -6,6 +6,7 @@ let videoRequestsList;
  */
 
 const addRequestsToPageWithSort = (requestsArray) => {
+    console.log('hree')
     const requestsList = document.querySelector('#listOfRequests');
     const newFirst = document.querySelector('#newFirst');
     const searchField = document.querySelector('#searchField');
@@ -43,6 +44,7 @@ const addRequestsToPageWithSort = (requestsArray) => {
 }
 
 const getCard = ({topic_title,topic_details,expected_result,votes,status,author_name,submit_date,target_level,_id}) => {
+    console.log('here from getCard')
     const videoCard = document.createElement('div');
     videoCard.classList.add('card','mb-3');
     videoCard.innerHTML = 
@@ -54,7 +56,7 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
                 ${expected_result && `<strong>Expected results:</strong> ${expected_result}`}
             </p>
             </div>
-            <div class="d-flex flex-column text-center">
+            <div class="d-flex flex-column text-center voting-section">
             <a class="btn btn-link">🔺</a>
             <h3>${votes.ups - votes.downs}</h3>
             <a class="btn btn-link">🔻</a>
@@ -78,6 +80,10 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
 
         // this is the vote score h3 element        
         const voteScore = videoCard.querySelector('.text-center > h3')
+
+        if(!canUserVoteOnVideoRequest(_id,location.search.replace('?id=',''))){
+            videoCard.querySelector('.voting-section').style.color = 'grey';
+        };
 
         voteUp = videoCard.querySelectorAll('a')[0];
         voteUp.addEventListener('click', () => {
@@ -110,9 +116,6 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
                     };
                     return videoRequest;
                 });
-
-                // resorting the requests
-                addRequestsToPageWithSort(videoRequestsList);
 
                 // the user voted this post
                 userVotedOnVideoRequest(_id,location.search.replace('?id=',''))
@@ -152,9 +155,6 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
                     return videoRequest;
                 });
 
-                // resorting the requests
-                addRequestsToPageWithSort(videoRequestsList);
-
                 // the user voted this post
                 userVotedOnVideoRequest(_id,location.search.replace('?id=',''))
             });
@@ -181,7 +181,10 @@ const userVotedOnVideoRequest = (requestId,userId) => {
             }
             return videoRequest;
         })
-    });
+    }).then(() => {
+        // sorting the requests list and adding it to the page after modifying it
+        addRequestsToPageWithSort(videoRequestsList);
+    })
 }
 
 const canUserVoteOnVideoRequest = (requestId,userId) => {
@@ -355,5 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             goHome()
         }
+        addRequestsToPageWithSort(videoRequestsList);
     })
 });
