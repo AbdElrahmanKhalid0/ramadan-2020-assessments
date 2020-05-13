@@ -81,6 +81,11 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
 
         voteUp = videoCard.querySelectorAll('a')[0];
         voteUp.addEventListener('click', () => {
+            // not voting if the user already voted
+            if(!canUserVoteOnVideoRequest(_id,location.search.replace('?id=',''))){
+                return;
+            };
+
             fetch('http://localhost:7777/video-request/vote', {
                 method:'PUT',
                 headers:{
@@ -117,6 +122,11 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
         
         voteDown = videoCard.querySelectorAll('a')[1];
         voteDown.addEventListener('click', () => {
+            // not voting if the user already voted
+            if(!canUserVoteOnVideoRequest(_id,location.search.replace('?id=',''))){
+                return;
+            };
+
             fetch('http://localhost:7777/video-request/vote', {
                 method:'PUT',
                 headers:{
@@ -174,8 +184,13 @@ const userVotedOnVideoRequest = (requestId,userId) => {
     });
 }
 
-const userCanVoteOnVideoRequest = (requestId,userId) => {
-    return true;
+const canUserVoteOnVideoRequest = (requestId,userId) => {
+    wantedVideoRequest = videoRequestsList.find(videoRequest => {
+        return videoRequest._id === requestId;
+    });
+
+    // returns false if the user has already voted this post and true if hasn't
+    return !wantedVideoRequest.voted_by.includes(userId);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
