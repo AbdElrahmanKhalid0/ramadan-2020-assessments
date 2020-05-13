@@ -247,14 +247,14 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
         // this is the vote score h3 element        
         const voteScore = videoCard.querySelector('.text-center > h3')
 
-        if(!canUserVoteOnVideoRequest(_id,location.search.replace('?id=',''))){
+        if(!canUserVoteOnVideoRequest(_id, new URLSearchParams(location.search).get('id'))){
             videoCard.querySelector('.voting-section').style.color = 'grey';
         };
 
         voteUp = videoCard.querySelectorAll('a')[0];
         voteUp.addEventListener('click', () => {
             // not voting if the user already voted
-            if(!canUserVoteOnVideoRequest(_id,location.search.replace('?id=',''))){
+            if(!canUserVoteOnVideoRequest(_id, new URLSearchParams(location.search).get('id'))){
                 return;
             };
 
@@ -284,7 +284,7 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
                 });
 
                 // the user voted this post
-                userVotedOnVideoRequest(_id,location.search.replace('?id=',''))
+                userVotedOnVideoRequest(_id, new URLSearchParams(locaiton.search).get('id'))
             });
 
         });
@@ -292,7 +292,7 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
         voteDown = videoCard.querySelectorAll('a')[1];
         voteDown.addEventListener('click', () => {
             // not voting if the user already voted
-            if(!canUserVoteOnVideoRequest(_id,location.search.replace('?id=',''))){
+            if(!canUserVoteOnVideoRequest(_id, new URLSearchParams(locaiton.search).get('id'))){
                 return;
             };
 
@@ -322,7 +322,7 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
                 });
 
                 // the user voted this post
-                userVotedOnVideoRequest(_id,location.search.replace('?id=',''))
+                userVotedOnVideoRequest(_id, new URLSearchParams(location.search).get('id'))
             });
 
         });
@@ -458,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // login form
 
     const goHomeOrHero = () => {
-        if(location.search.replace('?id=','') === '5ebb8e40d66341c724ab2707'){
+        if(new URLSearchParams(location.search).get('id') === '5ebb8e40d66341c724ab2707'){
             console.log('you are our hero');
             document.querySelector('#home-container').style.display = 'none';
             document.querySelector('#login-container').style.display = 'none';
