@@ -108,7 +108,7 @@
       <hr />
       <h1 class="mb-4">List of requested videos</h1>
       <div class="mb-3 nav row">
-        <ul class="sort nav col-6">
+        <ul class="sort nav col-4">
           <li id="newFirst" class="rounded-0 nav-item btn btn-primary active">
             <a>new first</a>
           </li>
@@ -116,7 +116,23 @@
             <a>top voted first</a>
           </li>
         </ul>
-        <div class="search col-6 float-right">
+        <div class="col-4">
+          <ul class="nav" id="filter">
+            <li id="All" class="rounded-0 nav-item btn btn-primary w-25 active">
+              <a>All</a>
+            </li>
+            <li id="New" class="rounded-0 nav-item btn btn-primary w-25">
+              <a>New</a>
+            </li>
+            <li id="Planned" class="rounded-0 nav-item btn btn-primary w-25">
+              <a>Planned</a>
+            </li>
+            <li id="Done" class="rounded-0 nav-item btn btn-primary w-25">
+              <a>Done</a>
+            </li>
+          </ul>
+        </div>
+        <div class="search col-4 float-right">
           <input type="search" id="searchField" class="form-control" placeholder="Search" aria-label="srearch in the requests list">
         </div>
       </div>

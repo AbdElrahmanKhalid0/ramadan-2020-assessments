@@ -3,9 +3,12 @@ let videoRequestsList;
 /**
  * 
  * @param {Array} requestsArray
+ * @param {Node} requestsListElement
+ * @param {boolean} isSuperUser
+ * @param {string} requestsStatus
  */
 
-const addRequestsToPageWithSort = (requestsArray,requestsListElement,isSuperUser) => {
+const addRequestsToPageWithSort = (requestsArray,requestsListElement,isSuperUser,requestsStatus = document.querySelector('#filter > .active').innerText) => {
     const requestsList = requestsListElement ? requestsListElement : document.querySelector('#listOfRequests');
     const newFirst = document.querySelector('#newFirst');
     const searchField = document.querySelector('#searchField');
@@ -27,6 +30,26 @@ const addRequestsToPageWithSort = (requestsArray,requestsListElement,isSuperUser
             return bScore - aScore;
         }
     });
+    
+    switch (requestsStatus.toLowerCase()) {
+        case 'new':
+            requestsArray = requestsArray.filter(videoRequest => {
+                return videoRequest.status.toLowerCase() === 'new';
+            });
+            break;
+        case 'planned':
+            requestsArray = requestsArray.filter(videoRequest => {
+                return videoRequest.status.toLowerCase() === 'planned';
+            });
+            break;
+        case 'done':
+            requestsArray = requestsArray.filter(videoRequest => {
+                return videoRequest.status.toLowerCase() === 'done';
+            });
+            break;
+        default:
+            break;
+    }
 
     // validating the search before adding the requests to the page
     requestsArray.filter(videoRequest => {
@@ -530,8 +553,26 @@ document.addEventListener('DOMContentLoaded', () => {
         
     })
 
-    // suber user capabilities
-    if(location.search.replace('?id=','') === '5ebb8e40d66341c724ab2707'){
-        
+    const filterNav = document.querySelector('#filter');
+    const filterElements = filterNav.querySelectorAll('li')
+    
+    for(filterElm of filterElements){
+        filterElm.addEventListener('click',function(){
+            // the 'this' keyword represents the filterElm itself
+            if(this.classList.contains('active')){
+                return;
+            };
+            this.classList.add('active');
+            
+            // this removes the activeness from the all the elements othe than the clicked element
+            for(otherFilterElm of Object.keys(filterElements).map(key => filterElements[key]).filter(filterElement => filterElement !== this)){
+                otherFilterElm.classList.remove('active')
+            }
+
+            // resorting the requests list according to the clicked button
+            addRequestsToPageWithSort(videoRequestsList);
+        })
     }
+
+
 });
