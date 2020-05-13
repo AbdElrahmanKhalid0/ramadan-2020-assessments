@@ -146,6 +146,7 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
             })
         });
 
+        // the done video url adding functionality
         if(status === 'done') {
             videoCard.querySelector(`#doneVideoForm${_id}`).addEventListener('submit',e => {
                 e.preventDefault();
@@ -182,6 +183,7 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
             })
         }
 
+        // deleting functionality
         videoCard.querySelector(`#deleteRequest${_id}`).addEventListener('click',() => {
             fetch('http://localhost:7777/video-request',{
                 method:'DELETE',
@@ -200,6 +202,80 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
             })
         })
 
+
+        // voting functionality -- I know that it isn't necessary but I want the super user to be able
+        // to cheat
+        const voteScore = videoCard.querySelector('.text-center > h3')
+
+        voteUp = videoCard.querySelectorAll('a')[0];
+        voteUp.addEventListener('click', () => {
+            // not voting if the user already voted
+
+            fetch('http://localhost:7777/video-request/vote', {
+                method:'PUT',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body:JSON.stringify({
+                    id: _id,
+                    vote_type: 'ups'
+                })
+            })
+            .then(result => result.json())
+            .then(votes => {
+                voteScore.innerHTML = votes.ups - votes.downs;
+                
+                // this updates the sorting list
+                videoRequestsList = videoRequestsList.map(videoRequest => {
+                    if (videoRequest._id === _id){
+                        return {
+                            ...videoRequest,
+                            votes
+                        }
+                    };
+                    return videoRequest;
+                });
+
+                addRequestsToPageWithSort(videoRequestsList,document.querySelector('#hero-container > #listOfRequests'),true);
+
+            });
+
+        });
+        
+        voteDown = videoCard.querySelectorAll('a')[1];
+        voteDown.addEventListener('click', () => {
+
+            fetch('http://localhost:7777/video-request/vote', {
+                method:'PUT',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body:JSON.stringify({
+                    id: _id,
+                    vote_type: 'downs'
+                })
+            })
+            .then(result => result.json())
+            .then(votes => {
+                voteScore.innerHTML = votes.ups - votes.downs;
+                
+                // this updates the sorting list
+                videoRequestsList = videoRequestsList.map(videoRequest => {
+                    if (videoRequest._id === _id){
+                        return {
+                            ...videoRequest,
+                            votes
+                        };
+                    }
+                    return videoRequest;
+                });
+
+                addRequestsToPageWithSort(videoRequestsList,document.querySelector('#hero-container > #listOfRequests'),true);
+
+            });
+
+        });
+        debugger
         return videoCard;
     }
 
@@ -284,7 +360,7 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
                 });
 
                 // the user voted this post
-                userVotedOnVideoRequest(_id, new URLSearchParams(locaiton.search).get('id'))
+                userVotedOnVideoRequest(_id, new URLSearchParams(location.search).get('id'))
             });
 
         });
@@ -292,7 +368,7 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
         voteDown = videoCard.querySelectorAll('a')[1];
         voteDown.addEventListener('click', () => {
             // not voting if the user already voted
-            if(!canUserVoteOnVideoRequest(_id, new URLSearchParams(locaiton.search).get('id'))){
+            if(!canUserVoteOnVideoRequest(_id, new URLSearchParams(location.search).get('id'))){
                 return;
             };
 
