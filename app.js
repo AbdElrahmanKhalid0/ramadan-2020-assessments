@@ -189,11 +189,20 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
                 ${expected_result && `<strong>Expected results:</strong> ${expected_result}`}
             </p>
             </div>
-            <div class="d-flex flex-column text-center voting-section">
-            <a class="btn btn-link">🔺</a>
-            <h3>${votes.ups - votes.downs}</h3>
-            <a class="btn btn-link">🔻</a>
-            </div>
+            ${video_ref.link ? `
+            <iframe width="200" height="150" src="${
+                video_ref.link.includes('www.youtube.com/watch?v=') ? `https://www.youtube.com/embed/${video_ref.link.substring(video_ref.link.lastIndexOf("v=") + 2, video_ref.link.length)}`
+                : `https://www.youtube.com/embed/${video_ref.link}`
+            }"
+            frameborder="0" allow="accelerometer; autoplay; encrypted-media;
+            gyroscope; picture-in-picture" allowfullscreen></iframe>
+                ` : `
+                <div class="d-flex flex-column text-center voting-section">
+                <a class="btn btn-link">🔺</a>
+                <h3>${votes.ups - votes.downs}</h3>
+                <a class="btn btn-link">🔻</a>
+                </div>
+            `}
         </div>
         <div class="card-footer d-flex flex-row justify-content-between">
             <div>
@@ -209,6 +218,7 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
             </div>
         </div>`;
     
+    if(!video_ref.link) {
         // adding the voting functionality
 
         // this is the vote score h3 element        
@@ -293,6 +303,7 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
             });
 
         });
+    }
     
     return videoCard;
 };
