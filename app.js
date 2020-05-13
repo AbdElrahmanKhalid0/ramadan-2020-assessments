@@ -5,8 +5,8 @@ let videoRequestsList;
  * @param {Array} requestsArray
  */
 
-const addRequestsToPageWithSort = (requestsArray) => {
-    const requestsList = document.querySelector('#listOfRequests');
+const addRequestsToPageWithSort = (requestsArray,requestsListElement,isSuperUser) => {
+    const requestsList = requestsListElement ? requestsListElement : document.querySelector('#listOfRequests');
     const newFirst = document.querySelector('#newFirst');
     const searchField = document.querySelector('#searchField');
 
@@ -37,14 +37,131 @@ const addRequestsToPageWithSort = (requestsArray) => {
         }
         return true
     }).map(videoRequest => {
-        const videoRequestCard = getCard(videoRequest);
+        const videoRequestCard = getCard(videoRequest,isSuperUser);
         requestsList.appendChild(videoRequestCard);
     });
 }
 
-const getCard = ({topic_title,topic_details,expected_result,votes,status,author_name,submit_date,target_level,_id}) => {
+const getCard = ({topic_title,topic_details,expected_result,votes,status,author_name,submit_date,target_level,_id,video_ref},isSuperUser) => {
     const videoCard = document.createElement('div');
     videoCard.classList.add('card','mb-3');
+
+    // super user request card
+    if(isSuperUser){
+        videoCard.innerHTML = 
+        `<div class="card-header d-flex flex-row justify-content-between">
+            <select
+                class="form-control col-2 status-change"
+                name="status"
+                placeholder="Enter the video Status"
+            >
+                <option value="new" ${status === 'new' ? 'selected' : ''}>new</option>
+                <option value="planned" ${status === 'planned' ? 'selected' : ''}>planned</option>
+                <option value="done" ${status === 'done' ? 'selected' : ''}>done</option>
+            </select>
+            ${status === 'done' ? `
+            <form id="doneVideoForm${_id}" class="col-8">
+                <div class="input-group">
+                    <input type="text" name="videoUrl" class="form-control" placeholder="Enter Video Url" aria-label="Enter the done video link" ${video_ref.link ? `value="${video_ref.link}" disabled` : ''}>
+                    ${!video_ref.link ? `
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit">save</button>
+                    </div>
+                    ` : ''}
+                </div>
+            </form>
+            ` : ''}
+            <button id="deleteRequest" class="btn btn-danger col-1">delete</button>
+        </div>
+        <div class="card-body d-flex justify-content-between flex-row">
+            <div class="d-flex flex-column">
+            <h3>${topic_title}</h3>
+            <p class="text-muted mb-2">${topic_details}</p>
+            <p class="mb-0 text-muted">
+                ${expected_result && `<strong>Expected results:</strong> ${expected_result}`}
+            </p>
+            </div>
+            <div class="d-flex flex-column text-center voting-section">
+            <a class="btn btn-link text-danger">🔺</a>
+            <h3>${votes.ups - votes.downs}</h3>
+            <a class="btn btn-link text-danger">🔻</a>
+            </div>
+        </div>
+        <div class="card-footer d-flex flex-row justify-content-between">
+            <div>
+            <span class="text-info">${status.toUpperCase()}</span>
+            &bullet; added by <strong>${author_name}</strong> on
+            <strong>${new Date(submit_date).toDateString()}</strong>
+            </div>
+            <div
+            class="d-flex justify-content-center flex-column 408ml-auto mr-2"
+            >
+            <div class="badge badge-success">
+                ${target_level}
+            </div>
+        </div>`;
+
+        videoCard.querySelector('.status-change').addEventListener('change',e => {
+            fetch('http://localhost:7777/video-request',{
+                method:'PUT',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body:JSON.stringify({
+                    id:_id,
+                    status: e.target.value
+                })
+            }).then(res => res.json()).then(videoRequestData => {
+                videoRequestsList = videoRequestsList.map(videoRequest => {
+                    if(videoRequest._id === videoRequestData._id){
+                        return videoRequestData;
+                    }
+                    return videoRequest;
+                })
+                
+                addRequestsToPageWithSort(videoRequestsList,document.querySelector('#hero-container > #listOfRequests'),true);
+            })
+        });
+
+        if(status === 'done') {
+            videoCard.querySelector(`#doneVideoForm${_id}`).addEventListener('submit',e => {
+                e.preventDefault();
+
+                const videoUrlElm = e.target.querySelector('[name=videoUrl]')
+                const videoUrl = e.target.querySelector('[name=videoUrl]').value
+                
+                if(!videoUrl){
+                    videoUrlElm.classList.add('is-invalid')
+                    videoUrlElm.oninput = () => {videoUrlElm.classList.remove('is-invalid')}
+                    return;
+                }
+
+                fetch('http://localhost:7777/video-request',{
+                    method:'PUT',
+                    headers:{
+                        'Content-Type':'application/json'
+                    },
+                    body:JSON.stringify({
+                        id:_id,
+                        status: 'done',
+                        video_link: videoUrl
+                    })
+                }).then(res => res.json()).then(videoRequestData => {
+                    videoRequestsList = videoRequestsList.map(videoRequest => {
+                        if(videoRequest._id === videoRequestData._id){
+                            return videoRequestData;
+                        }
+                        return videoRequest;
+                    })
+                    
+                    addRequestsToPageWithSort(videoRequestsList,document.querySelector('#hero-container > #listOfRequests'),true);
+                })
+            })
+        }
+
+        return videoCard;
+    }
+
     videoCard.innerHTML = 
         `<div class="card-body d-flex justify-content-between flex-row">
             <div class="d-flex flex-column">
@@ -179,7 +296,6 @@ const userVotedOnVideoRequest = (requestId,userId) => {
             }
             return videoRequest;
         })
-    }).then(() => {
         // sorting the requests list and adding it to the page after modifying it
         addRequestsToPageWithSort(videoRequestsList);
     })
@@ -289,17 +405,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // login form
 
-    const goHome = () => {
+    const goHomeOrHero = () => {
+        if(location.search.replace('?id=','') === '5ebb8e40d66341c724ab2707'){
+            console.log('you are our hero');
+            document.querySelector('#home-container').style.display = 'none';
+            document.querySelector('#login-container').style.display = 'none';
+            document.querySelector('#hero-container').style.display = 'block';
+            
+            // fetching the data if there is no list stored
+            if(!videoRequestsList){
+                fetch('http://localhost:7777/video-request')
+                .then(result => result.json())
+                .then(videoRequests => {
+                    videoRequestsList = videoRequests;
+        
+                    addRequestsToPageWithSort(videoRequestsList,document.querySelector('#hero-container > #listOfRequests'),true);
+                })
+            } else {
+                addRequestsToPageWithSort(videoRequestsList,document.querySelector('#hero-container > #listOfRequests'),true);
+            }
+            
+            return;
+        };
         document.querySelector('#home-container').style.display = 'block';
         document.querySelector('#login-container').style.display = 'none';
+        document.querySelector('#hero-container').style.display = 'none';
     }
     const goLogin = () => {
         document.querySelector('#home-container').style.display = 'none';
         document.querySelector('#login-container').style.display = 'block';
+        document.querySelector('#hero-container').style.display = 'none';
     }
+
     
     if(location.search){
-        goHome()
+        goHomeOrHero()
     }
 
     loginForm.addEventListener('submit',(e) => {
@@ -346,7 +486,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 id:user._id
             },'Home || Semicolon',`${location.origin}/?id=${user._id}`);
             document.title = 'Home || Semicolon';
-            goHome()
+
+            goHomeOrHero()
         })
     })
     
@@ -354,8 +495,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!location.search){
             goLogin()
         } else {
-            goHome()
+            goHomeOrHero()
         }
         addRequestsToPageWithSort(videoRequestsList);
+        
     })
+
+    // suber user capabilities
+    if(location.search.replace('?id=','') === '5ebb8e40d66341c724ab2707'){
+        
+    }
 });
