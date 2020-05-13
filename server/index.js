@@ -30,11 +30,17 @@ app.get('/video-request', async (req, res, next) => {
   next();
 });
 
-app.put('/video-request', async (req, res, next) => {
-  const response = await VideoRequestData.updateRequest(req.body.id, req.body.userId);
+app.put('/video-request/user-vote', async (req, res, next) => {
+  const response = await VideoRequestData.updateUserVoted(req.body.id, req.body.userId);
   res.send(response);
   next();
 });
+
+app.put('/video-request', async (req, res, next) => {
+  const response = await VideoRequestData.updateRequest(req.body.id, req.body.status, req.body.video_link);
+  res.send(response);
+  next()
+})
 
 app.get('/users', async (req, res, next) => {
   const response = await UserData.getAllUsers(req.body);

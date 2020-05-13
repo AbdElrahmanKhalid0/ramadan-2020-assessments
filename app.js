@@ -6,7 +6,6 @@ let videoRequestsList;
  */
 
 const addRequestsToPageWithSort = (requestsArray) => {
-    console.log('hree')
     const requestsList = document.querySelector('#listOfRequests');
     const newFirst = document.querySelector('#newFirst');
     const searchField = document.querySelector('#searchField');
@@ -44,7 +43,6 @@ const addRequestsToPageWithSort = (requestsArray) => {
 }
 
 const getCard = ({topic_title,topic_details,expected_result,votes,status,author_name,submit_date,target_level,_id}) => {
-    console.log('here from getCard')
     const videoCard = document.createElement('div');
     videoCard.classList.add('card','mb-3');
     videoCard.innerHTML = 
@@ -165,7 +163,7 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
 };
 
 const userVotedOnVideoRequest = (requestId,userId) => {
-    fetch('http://localhost:7777/video-request',{
+    fetch('http://localhost:7777/video-request/user-vote',{
         method:'PUT',
         headers:{
             'Content-Type':'application/json'

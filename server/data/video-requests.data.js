@@ -24,7 +24,18 @@ module.exports = {
     return VideoRequest.findById({ _id: id });
   },
 
-  updateRequest: async (id, userId) => {
+  updateRequest: async (id, status, video_link) => {
+    const updates = {
+      status,
+      video_ref:{
+        link: video_link || '',
+        date: (video_link && new Date()) || '',
+      }
+    };
+    return VideoRequest.findByIdAndUpdate( id, updates, { new: true } );
+  },
+
+  updateUserVoted: async (id, userId) => {
     const oldRequest = await VideoRequest.findById({ _id: id });
     return VideoRequest.findByIdAndUpdate(id, {
       voted_by: [
