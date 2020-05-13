@@ -71,7 +71,7 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
                 </div>
             </form>
             ` : ''}
-            <button id="deleteRequest" class="btn btn-danger col-1">delete</button>
+            <button id="deleteRequest${_id}" class="btn btn-danger col-1">delete</button>
         </div>
         <div class="card-body d-flex justify-content-between flex-row">
             <div class="d-flex flex-column">
@@ -158,6 +158,24 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
                 })
             })
         }
+
+        videoCard.querySelector(`#deleteRequest${_id}`).addEventListener('click',() => {
+            fetch('http://localhost:7777/video-request',{
+                method:'DELETE',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body:JSON.stringify({
+                    id:_id,
+                })
+            }).then(() => {
+                videoRequestsList = videoRequestsList.filter(videoRequest => {
+                    return videoRequest._id !== _id;
+                })
+
+                addRequestsToPageWithSort(videoRequestsList,document.querySelector('#hero-container > #listOfRequests'),true);
+            })
+        })
 
         return videoCard;
     }
