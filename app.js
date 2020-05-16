@@ -290,7 +290,7 @@ const getCard = ({topic_title,topic_details,expected_result,votes,status,author_
             </div>
             ${video_ref.link ? `
             <iframe width="200" height="150" src="${
-                video_ref.link.includes('www.youtube.com/watch?v=') ? `https://www.youtube.com/embed/${video_ref.link.substring(video_ref.link.lastIndexOf("v=") + 2, video_ref.link.length)}`
+                video_ref.link.includes('www.youtube.com') ? `https://www.youtube.com/embed/${getYoutubeVideoId(video_ref.link)}`
                 : `https://www.youtube.com/embed/${video_ref.link}`
             }"
             frameborder="0" allow="accelerometer; autoplay; encrypted-media;
@@ -436,6 +436,12 @@ const canUserVoteOnVideoRequest = (requestId,userId) => {
 
     // returns false if the user has already voted this post and true if hasn't
     return !wantedVideoRequest.voted_by.includes(userId);
+}
+
+const getYoutubeVideoId = (url) => {
+    const parses = document.createElement('a');
+    parses.href = url;
+    return new URLSearchParams(parses.search).get('v');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
